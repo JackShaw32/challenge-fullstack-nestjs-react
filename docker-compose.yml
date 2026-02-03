@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:15
+    container_name: challenge_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: challenge_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: challenge_backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://admin:adminpassword@postgres_db:5432/challenge_db
+      JWT_SECRET: supersecreto
+      PORT: 3000
+      CI: "true"
+    depends_on:
+      - postgres_db
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: challenge_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+      CI: "true"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
