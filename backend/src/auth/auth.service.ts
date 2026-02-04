@@ -34,7 +34,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const savedUser = (await this.usersRepository.save(newUser)) as User;
+    const savedUser = await this.usersRepository.save(newUser);
     const token = this.generateToken(savedUser);
 
     return {
@@ -61,11 +61,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const userEntity = user as User;
-    const token = this.generateToken(userEntity);
+    const token = this.generateToken(user);
 
     return {
-      user: this.sanitizeUser(userEntity),
+      user: this.sanitizeUser(user),
       token,
     };
   }
